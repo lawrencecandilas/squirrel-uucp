@@ -8,6 +8,8 @@ Right now that just consists of the Squirrel UUCP Caller.
 
 Squirrel UUCP Caller is a GUI frontend--developed using Visual Basic .NET/Microsoft Visual Studio 2022--that lets a casual user batch up files, register and select a UUCP system, and make calls.
 
+[Squirrel UUCP Caller - Screenshot Of Main Window](https://github.com/lawrencecandilas/squirrel-uucp/blob/main/Squirrel_UUCP_Caller/App%20Screenshots/Squirrel%20UUCP%20Caller%20-%20Home%20Tab.png?raw=true)
+
 UUCP caller integrates with a Cygwin environment (included) to do most of the actual work.  
 
 ## Cygwin Integration
