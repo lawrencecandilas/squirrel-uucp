@@ -8,7 +8,7 @@ Right now that just consists of the Squirrel UUCP Caller.
 
 Squirrel UUCP Caller is a GUI frontend--developed using Visual Basic .NET/Microsoft Visual Studio 2022--that lets a casual user batch up files, register and select a UUCP system, and make calls.
 
-[Squirrel UUCP Caller - Screenshot Of Main Window](https://github.com/lawrencecandilas/squirrel-uucp/blob/main/Squirrel_UUCP_Caller/App%20Screenshots/Squirrel%20UUCP%20Caller%20-%20Home%20Tab.png?raw=true)
+![Squirrel UUCP Caller - Screenshot Of Main Window](https://github.com/lawrencecandilas/squirrel-uucp/blob/main/Squirrel_UUCP_Caller/App%20Screenshots/Squirrel%20UUCP%20Caller%20-%20Home%20Tab.png?raw=true)
 
 UUCP caller integrates with a Cygwin environment (included) to do most of the actual work.  
 
@@ -22,11 +22,11 @@ UUCP caller integrates with a Cygwin environment (included) to do most of the ac
 
 # UUCP Invite Files
 
-UUCP implements the UUCP Invite File specification.
+UUCP implements the [UUCP Invite File specification](https://github.com/lawrencecandilas/craziness/tree/main/UUCP%20Invite%20File%20Specification).
 
 Invite files are text files that contain all the parameters of a UUCP system - all a user has to do is load the invite file from System->Add System->Load Invite File, and that invite will be processed, configured, and added to the list of systems available to call.
 
-If you operate a UUCP node capable of receiving calls, creating an invite file is not too difficult - see the UUCP Invite File Specification.
+If you operate a UUCP node capable of receiving calls, creating an invite file is not too difficult.
 
 * At this time only SSH-based transports toward a UUCP receiver are supported by UUCP caller and the UUCP Invite File Specification.  More to come.
 
@@ -38,7 +38,7 @@ If a valid Cygwin environment with all the UUCP goodies is in a folder named "cy
 
 # Usage
 
-Please refer to the document "Squirrel UUCP Caller User Manual.pdf" (coming soon)
+Please refer to the document "Squirrel UUCP Caller - User Manual.pdf" (coming soon)
 
 # Why?
 
@@ -69,9 +69,9 @@ UUCP is fascinating.  If you want to learn more about UUCP, consult the followin
 
 - The whole nexus of the objects representing UUCP things and how it talks to the UI could be much better.  I was mostly figuring things out as I was going along with this.
 
-- Add more transport methods - including pure serial, dial-up, and `bondcat` if it will compile/work under Cygwin.
+- Add more transport methods - including pure serial, dial-up, `bondcat` if it will compile/work under Cygwin, and a few others.
 
-- Document how to add transport methods and try to make them as easy as possible to add.
+- Document how to add transport methods(done) and try to make them as easy as possible to add(definitely not done).
 
 - Develop Squirrel UUCP Receiver.
 
