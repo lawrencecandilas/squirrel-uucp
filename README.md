@@ -58,6 +58,7 @@ UUCP is fascinating.  If you want to learn more about UUCP, consult the followin
 
 * [UUCP - the Wikipedia Article](https://en.wikipedia.org/wiki/UUCP)
 * [My "UUCP in 2022" .PDF](https://github.com/lawrencecandilas/craziness/tree/main/UUCP%20in%202022)
+* [Ian Lance Taylor's webpage](https://www.airs.com/ian/software.html)
 
 # Things I hope to have the time to do in the future
 
