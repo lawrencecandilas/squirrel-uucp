@@ -22,9 +22,9 @@ UUCP caller integrates with a Cygwin environment (included) to do most of the ac
 
 # UUCP Invite Files
 
-UUCP implements the [UUCP Invite File specification](https://github.com/lawrencecandilas/craziness/tree/main/UUCP%20Invite%20File%20Specification).
+Squirrel UUCP Caller implements the [UUCP Invite File specification](https://github.com/lawrencecandilas/craziness/tree/main/UUCP%20Invite%20File%20Specification).
 
-Invite files are text files that contain all the parameters of a UUCP system - all a user has to do is load the invite file from System->Add System->Load Invite File, and that invite will be processed, configured, and added to the list of systems available to call.
+Invite files are text files that contain all the parameters of a UUCP system - all a user has to do is go to System > Add System > Load Invite File, and that invite will be processed, configured, and added to the list of systems available to call.
 
 If you operate a UUCP node capable of receiving calls, creating an invite file is not too difficult.
 
