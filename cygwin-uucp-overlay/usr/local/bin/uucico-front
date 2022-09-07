@@ -1,0 +1,29 @@
+#!/bin/bash
+SYSTEM=$1
+/bin/rm -f /usr/spool/uucp/Log
+/bin/rm -f /usr/spool/uucp/LCK*
+
+# SSH-based transports won't work unless key permissions are set correctly.
+# They should be set to this anyway, so we'll reinforce that here.
+chmod 0600 /etc/uucp/*.key.txt > /dev/null 2> /dev/null
+
+/bin/uucico --config /etc/uucp/config --system $SYSTEM --force &
+UUCICO_PID=$!
+
+echo "------------------------------------------------------------------------------"
+echo " Calling $SYSTEM using the uucico program ..."
+echo " Below is what it is doing.  Calls with many files will take a long time."
+echo " (The cygwin PID of uucico is $UUCICO_PID)"
+echo "------------------------------------------------------------------------------"
+
+echo ""
+
+/bin/tail -f /usr/spool/uucp/Log --pid=$UUCICO_PID
+
+echo ""
+echo "------------------------------------------------------------------------------"
+echo " uucico stopped.  See results above."
+echo " This will disappear automatically in 60 seconds - or you can press a key."
+echo "------------------------------------------------------------------------------"
+
+read -n 1 -t 60
