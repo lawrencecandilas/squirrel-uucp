@@ -140,6 +140,7 @@
                     "type pipe" &
                     vbLf &
                     "command /bin/ssh -a -x -q" &
+                        " -o StrictHostKeyChecking=no " &
                         " -p " &
                         NewSSHPort &
                         " -i " &

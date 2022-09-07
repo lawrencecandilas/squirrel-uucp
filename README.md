@@ -2,13 +2,13 @@
 
 Squirrel UUCP utilities enable Windows users to easily utilize UUCP for purposes of data transfer.
 
-Right now that consists of the Squirrel UUCP Caller.
+Right now that just consists of the Squirrel UUCP Caller.
  
 # Squirrel UUCP Caller
 
-Squirrel UUCP Caller is a GUI frontend--developed using Visual Basic .NET/Microsoft Visual Studio 2022--that lets a casual user batch up files, setup and select a UUCP system, and make calls.
+Squirrel UUCP Caller is a GUI frontend--developed using Visual Basic .NET/Microsoft Visual Studio 2022--that lets a casual user batch up files, register and select a UUCP system, and make calls.
 
-UUCP caller integrates with a Cygwin environment to do the actual work.  
+UUCP caller integrates with a Cygwin environment (included) to do most of the actual work.  
 
 ## Cygwin Integration
 
@@ -22,15 +22,21 @@ UUCP caller integrates with a Cygwin environment to do the actual work.
 
 UUCP implements the UUCP Invite File specification.
 
-Invite files are text files that contain all the parameters of a UUCP system - all a user has to do is point UUCP Caller to the invite file and it will be processed, configured, and added to the list of systems available to call.
+Invite files are text files that contain all the parameters of a UUCP system - all a user has to do is load the invite file from System->Add System->Load Invite File, and that invite will be processed, configured, and added to the list of systems available to call.
 
-If you operate a UUCP capable of receiving calls, a bash script is available that you can use to generate invite files.
+If you operate a UUCP node capable of receiving calls, creating an invite file is not too difficult - see the UUCP Invite File Specification.
 
-* At this time only SSH-based transports into a UUCP receiver are supported by UUCP caller.  More will probably be added in the future.
+* At this time only SSH-based transports toward a UUCP receiver are supported by UUCP caller and the UUCP Invite File Specification.  More to come.
 
 # Installation
 
+Squirrel UUCP Caller is portable and doesn't require installation.
+
+If a valid Cygwin environment with all the UUCP goodies is in a folder named "cygwin-uucp", and that folder is in the same one that Squirrel UUCP Caller is running from, then it will automatically be used without intervention from you.  You can tell Squirrel UUCP Caller to use an alternate environment in a different folder anytime--it will save and use a small settings file in that case. 
+
 # Usage
+
+Please refer to the document "Squirrel UUCP Caller User Manual.pdf" (coming soon)
 
 # Why?
 
