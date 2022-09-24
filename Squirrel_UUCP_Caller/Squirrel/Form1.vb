@@ -12,21 +12,26 @@ Public Class Form1
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
         DebugOut("Form1_Load(...)")
         'Everything starts here.
+#If DEBUG Then
+        MsgBox("Debug Mode")
+#End If
         '
         'ConfigClasses.Config reads in UUCP config files during creation.
         '
         'Any problem with the Cygwin environment or UUCP configuration will
         'be detected upon instantiation, and reported through Conf.valid.
-
+        Transports.Setup()
         Conf = New ConfigClasses.Config
         UISetupForConfValid(Conf.valid)
         If Not Conf.Valid Then
-            Dim ConfigErrorReporter As New Form3
-            For Each Thing In Conf.Problems
-                ConfigErrorReporter.ListBox1.Items.Add(Thing.Body)
-            Next
-            ConfigErrorReporter.ShowDialog()
-            ConfigErrorReporter.Dispose()
+            If Conf.Problems.Count > 0 Then
+                Dim ConfigErrorReporter As New frmUUCPConfigFileError
+                For Each Thing In Conf.Problems
+                    ConfigErrorReporter.ListBox1.Items.Add(Thing.Body)
+                Next
+                ConfigErrorReporter.ShowDialog()
+                ConfigErrorReporter.Dispose()
+            End If
         End If
     End Sub
     Private Sub Form1_Close(sender As Object, e As EventArgs) Handles Me.FormClosing
@@ -46,6 +51,8 @@ Public Class Form1
         '- also updates lsvConfigReport and a few items on the Cygwin tab
         '- is responsible for populating lsvConfigReport based on each item
         'in the CygwinChecks collection.
+
+        tbxReceiveFolder.Text = Cyg2WinPath(Conf.Winpathof_uucppublic, Conf.Winpathof_cygwinroot)
 
         lsvConfigReport.Items.Clear()
         For Each Thing In CygwinChecks
@@ -233,10 +240,10 @@ Public Class Form1
     Private Sub btnChangeNodename_Click(sender As Object, e As EventArgs) Handles btnChangeNodename.Click
         DebugOut("btnChangeNodename_Click(...)")
         DebugOut(" asking user for a new nodename")
-        Dim Dialog0 As New UUCPNodenameChange
-        UUCPNodenameChange.ShowDialog()
+        Dim Dialog0 As New frmUUCPNodenameChange
+        frmUUCPNodenameChange.ShowDialog()
         'If the user didn't cooperate ...
-        If Not UUCPNodenameChange.NewNameSet Then
+        If Not frmUUCPNodenameChange.NewNameSet Then
             '... then that's a problem.
             DebugOut(" user backed out")
             Exit Sub
@@ -245,13 +252,13 @@ Public Class Form1
             DebugOut(" user provided a new nodename, making new config file")
             'more specifically, try to make the file...
             If Not NewUUCPConfigFile(Conf.Winpathof_etcuucp & "\config",
-                                     UUCPNodenameChange.tbxNewUUCPNodename.Text) Then
+                                     frmUUCPNodenameChange.tbxNewUUCPNodename.Text) Then
                 'if something goes wrong while making the file. :O
                 'TODO
             End If
         End If
         'and we don't need that form for that dialog anymore.
-        UUCPNodenameChange.Dispose()
+        frmUUCPNodenameChange.Dispose()
 
         Conf.Refresh()
         UISetupForConfValid(Conf.valid)
@@ -359,7 +366,7 @@ Public Class Form1
             btnRemoveSystem.Enabled = False
             btnCall.Enabled = False
             tbxCallInfo.Text = SquirrelComms.Item(15).Body
-            Dim panel As New ucoNoSystemsNotice
+            Dim panel As New ucoDISPLAY_NoSystemsNotice
             pnlShowSystem.Controls.Clear()
             pnlShowSystem.Controls.Add(panel)
             '-----------------------------------------------------------------
@@ -375,36 +382,28 @@ Public Class Form1
         'If the transport type is unknown then we simply load the user control
         'object that displays the raw configuration.
         '
-        Select Case Conf.systems.Item(in_selectedSystemName).Port.TransportObject.TypeName
-            Case "KnownSystem"
-                Dim panel As New ucoKnownSystem
-                panel.SetFields(in_selectedSystemName)
-                pnlShowSystem.Controls.Clear()
-                pnlShowSystem.Controls.Add(panel)
-                PopulateTbxRecipient(Conf.Systems.Item(in_selectedSystemName).Name)
-                btnViewRawConfig.Enabled = True
-            Case "SSHTransport"
-                Dim selectedSSHServer As String =
-                 Conf.Systems.Item(in_selectedSystemName).Port.TransportObject.SSHServer
-                Dim panel As New ucoSSHTransport
-                panel.SetFields(in_selectedSystemName,
-                        Conf.Systems.Item(in_selectedSystemName).Port.Name,
-                        Conf.Systems.Item(in_selectedSystemName).Port.TransportObject.SSHServer,
-                        Conf.Systems.Item(in_selectedSystemName).Port.TransportObject.SSHKeyPath,
-                        Conf.Systems.Item(in_selectedSystemName).Port.TransportObject.SSHLoginName,
-                        Conf.Systems.Item(in_selectedSystemName).uucicoUsername
-                        )
-                pnlShowSystem.Controls.Clear()
-                pnlShowSystem.Controls.Add(panel)
-                PopulateTbxRecipient(Conf.Systems.Item(in_selectedSystemName).Name)
-                btnViewRawConfig.Enabled = True
-            Case Else
-                'Unknown system - load user control object that shows raw config.
-                pnlShowSystemUpdate_Generic(in_selectedSystemName)
-                'No need to enable "View Raw Config" button if that's what we
-                'are already displaying.
-                btnViewRawConfig.Enabled = False
-        End Select
+        Dim TransportName = "None"
+
+        If Conf.systems.Item(in_selectedSystemName).Port.IsTransportObjectDefined Then
+            TransportName = Conf.systems.Item(in_selectedSystemName).Port.TransportObject.TypeName
+        End If
+
+        If Transports.AvailableDisplayers.Contains(LCase(TransportName)) Then
+            Dim Panel As New Object
+            Panel = Activator.CreateInstance(AvailableDisplayers(Trim(LCase(TransportName))))
+            Panel.SetFields(Conf.systems.Item(in_selectedSystemName).GetTransportParameters())
+            pnlShowSystem.Controls.Clear()
+            pnlShowSystem.Controls.Add(Panel)
+            PopulateTbxRecipient(Conf.Systems.Item(in_selectedSystemName).Name)
+            btnViewRawConfig.Enabled = True
+        Else
+            'Unknown System - Load user control object that shows raw config.
+            pnlShowSystemUpdate_Generic(in_selectedSystemName)
+            'No need to enable "View Raw Config" button if that's what we
+            'are already displaying.
+            btnViewRawConfig.Enabled = False
+        End If
+
     End Sub
 
     Private Sub pnlShowSystemUpdate_Generic(in_selectedSystemName As String)
@@ -412,7 +411,7 @@ Public Class Form1
         'configuration text is factored out into its own function so we can
         'reuse it when the "View Raw Config" button is pressed.
         '
-        Dim panel As New ucoOtherTransport
+        Dim panel As New ucoDISPLAY_OtherTransport
         panel.tbxConfigText.AppendText("==== PORT ====" & vbCrLf)
         For Each x As String In Conf.systems.Item(in_selectedSystemName).Port.port_conflines
             panel.tbxConfigText.AppendText(x & vbCrLf)
@@ -923,7 +922,7 @@ Public Class Form1
             '
             Dim cmdresult As New Collection
             Dim cmdparams As String =
-                    "--config " & Win2CygPath(Conf.Winpathof_etcuucp) & "\config " &
+                    "--config '" & Win2CygPath(Conf.Winpathof_etcuucp) & "\config' " &
                     "--uuto --jobid --nocopy --noexpand --nouucico " &
                     "'" & Win2CygPath(OpenFileDialog1.FileName) & "' " &
                     "'" & Trim(tbxRecipient.Text) & "'"
@@ -1019,13 +1018,8 @@ Public Class Form1
                                lsvSystemsList.SelectedItems(0).Text &
                                Chr(34))
 
-        If Result = 0 Then
-            tbxCallLog.AppendText("No error code returned" & vbCrLf)
-            SquirrelComms.Item(10).SetTbxCallInfo(tbxCallInfo)
-        Else
-            tbxCallLog.AppendText("Process returned error code " & Result & vbCrLf)
-            SquirrelComms.Item(11).SetTbxCallInfo(tbxCallInfo)
-        End If
+        tbxCallLog.AppendText("Process exit code is " & Result & vbCrLf)
+        SquirrelComms.Item(10).SetTbxCallInfo(tbxCallInfo)
 
         tbxCallLog.AppendText("Call process ended:   " & DateAndTime.Now & vbCrLf & vbCrLf)
 
@@ -1114,7 +1108,7 @@ Public Class Form1
         'and the user double-clicks here (which will say "[Configuration
         'Error]"), we'll pop up the configuration error report dialog.
         If Not Conf.Valid Then
-            Dim ConfigErrorReporter As New Form3
+            Dim ConfigErrorReporter As New frmUUCPConfigFileError
             For Each Thing In Conf.Problems
                 ConfigErrorReporter.ListBox1.Items.Add(Thing.Body)
             Next
@@ -1122,4 +1116,5 @@ Public Class Form1
             ConfigErrorReporter.Dispose()
         End If
     End Sub
+
 End Class

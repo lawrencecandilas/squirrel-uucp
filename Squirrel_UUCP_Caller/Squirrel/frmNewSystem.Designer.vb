@@ -42,7 +42,6 @@ Partial Class frmNewSystem
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.lbxBuilders.FormattingEnabled = True
         Me.lbxBuilders.ItemHeight = 15
-        Me.lbxBuilders.Items.AddRange(New Object() {"[Select]", "SSH Transport", "Known System - No Transport"})
         Me.lbxBuilders.Location = New System.Drawing.Point(44, 24)
         Me.lbxBuilders.Name = "lbxBuilders"
         Me.lbxBuilders.ScrollAlwaysVisible = True

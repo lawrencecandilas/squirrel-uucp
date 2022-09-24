@@ -36,6 +36,16 @@ Squirrel UUCP Caller is portable and doesn't require installation.
 
 If a valid Cygwin environment with all the UUCP goodies is in a folder named "cygwin-uucp", and that folder is in the same one that Squirrel UUCP Caller is running from, then it will automatically be used without intervention from you.  You can tell Squirrel UUCP Caller to use an alternate environment in a different folder anytime--it will save and use a small settings file in that case. 
 
+# Build Instructions
+
+* Download and install the community version of Visual Studio 2022.
+
+* Download the contents of Squirrel_UUCP_Caller to a convenient local location - such as %userprofile%\source\repos\Squirrel.
+
+* Open the .sln file.
+
+* At the top, select either Debug or Release, then Build > Build Solution from the top menu.  The debug build will popup a message box telling you Debug Mode is enabled, and also will always output debug tracing text to the console.
+
 # Usage
 
 Please refer to the document "Squirrel UUCP Caller - User Manual.pdf" (coming soon)
@@ -61,6 +71,10 @@ UUCP is fascinating.  If you want to learn more about UUCP, consult the followin
 * [Ian Lance Taylor's webpage](https://www.airs.com/ian/software.html)
 
 # Things I hope to have the time to do in the future
+
+- Command line parameter support.
+
+This will include optionally enabling debug mode from the command line, and also directing debug text to a file or window instead of the Visual Studio debug console.
 
 - Figure out a way to get Cygwin terminal output to funnel through controls in realtime.  
 

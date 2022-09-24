@@ -30,6 +30,7 @@ Partial Class Form1
         Me.RichTextBox1 = New System.Windows.Forms.RichTextBox()
         Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.tpgSystems = New System.Windows.Forms.TabPage()
+        Me.Label7 = New System.Windows.Forms.Label()
         Me.chkForwardTo = New System.Windows.Forms.CheckBox()
         Me.chkForwardFrom = New System.Windows.Forms.CheckBox()
         Me.pnlShowSystem = New System.Windows.Forms.Panel()
@@ -86,6 +87,8 @@ Partial Class Form1
         Me.FolderBrowserDialog1 = New System.Windows.Forms.FolderBrowserDialog()
         Me.FolderBrowserDialog2 = New System.Windows.Forms.FolderBrowserDialog()
         Me.tbxSelectedSystemName = New System.Windows.Forms.TextBox()
+        Me.Label4 = New System.Windows.Forms.Label()
+        Me.Label6 = New System.Windows.Forms.Label()
         ch10 = New System.Windows.Forms.ColumnHeader()
         Me.TabControl1.SuspendLayout()
         Me.tpgHome.SuspendLayout()
@@ -118,7 +121,7 @@ Partial Class Form1
         Me.TabControl1.Location = New System.Drawing.Point(12, 9)
         Me.TabControl1.Name = "TabControl1"
         Me.TabControl1.SelectedIndex = 0
-        Me.TabControl1.Size = New System.Drawing.Size(700, 332)
+        Me.TabControl1.Size = New System.Drawing.Size(630, 342)
         Me.TabControl1.TabIndex = 0
         '
         'tpgHome
@@ -128,7 +131,7 @@ Partial Class Form1
         Me.tpgHome.Location = New System.Drawing.Point(4, 24)
         Me.tpgHome.Name = "tpgHome"
         Me.tpgHome.Padding = New System.Windows.Forms.Padding(3)
-        Me.tpgHome.Size = New System.Drawing.Size(692, 304)
+        Me.tpgHome.Size = New System.Drawing.Size(622, 314)
         Me.tpgHome.TabIndex = 5
         Me.tpgHome.Text = "Home"
         Me.tpgHome.UseVisualStyleBackColor = True
@@ -143,7 +146,7 @@ Partial Class Form1
         Me.RichTextBox1.MaxLength = 16384
         Me.RichTextBox1.Name = "RichTextBox1"
         Me.RichTextBox1.ReadOnly = True
-        Me.RichTextBox1.Size = New System.Drawing.Size(447, 292)
+        Me.RichTextBox1.Size = New System.Drawing.Size(377, 302)
         Me.RichTextBox1.TabIndex = 2
         Me.RichTextBox1.Text = resources.GetString("RichTextBox1.Text")
         '
@@ -154,49 +157,59 @@ Partial Class Form1
         Me.TextBox2.Multiline = True
         Me.TextBox2.Name = "TextBox2"
         Me.TextBox2.ReadOnly = True
-        Me.TextBox2.Size = New System.Drawing.Size(228, 292)
+        Me.TextBox2.Size = New System.Drawing.Size(228, 302)
         Me.TextBox2.TabIndex = 1
-        Me.TextBox2.Text = "Squirrel UUCP Caller" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Version 202209r1"
+        Me.TextBox2.Text = "Squirrel UUCP Caller" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Version 202209r2" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
         Me.TextBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
         'tpgSystems
         '
+        Me.tpgSystems.Controls.Add(Me.btnViewRawConfig)
+        Me.tpgSystems.Controls.Add(Me.Label7)
         Me.tpgSystems.Controls.Add(Me.chkForwardTo)
         Me.tpgSystems.Controls.Add(Me.chkForwardFrom)
         Me.tpgSystems.Controls.Add(Me.pnlShowSystem)
         Me.tpgSystems.Controls.Add(Me.btnRemoveSystem)
         Me.tpgSystems.Controls.Add(Me.btnAddSystem)
-        Me.tpgSystems.Controls.Add(Me.btnViewRawConfig)
         Me.tpgSystems.Controls.Add(Me.lsvSystemsList)
         Me.tpgSystems.Controls.Add(Me.btnSetDefault)
         Me.tpgSystems.Location = New System.Drawing.Point(4, 24)
         Me.tpgSystems.Name = "tpgSystems"
         Me.tpgSystems.Padding = New System.Windows.Forms.Padding(3)
-        Me.tpgSystems.Size = New System.Drawing.Size(692, 304)
+        Me.tpgSystems.Size = New System.Drawing.Size(622, 314)
         Me.tpgSystems.TabIndex = 0
         Me.tpgSystems.Text = "Systems"
         Me.tpgSystems.UseVisualStyleBackColor = True
+        '
+        'Label7
+        '
+        Me.Label7.AutoSize = True
+        Me.Label7.Location = New System.Drawing.Point(357, 10)
+        Me.Label7.Name = "Label7"
+        Me.Label7.Size = New System.Drawing.Size(56, 15)
+        Me.Label7.TabIndex = 7
+        Me.Label7.Text = "Forward :"
         '
         'chkForwardTo
         '
         Me.chkForwardTo.AutoSize = True
         Me.chkForwardTo.Enabled = False
-        Me.chkForwardTo.Location = New System.Drawing.Point(480, 10)
+        Me.chkForwardTo.Location = New System.Drawing.Point(469, 9)
         Me.chkForwardTo.Name = "chkForwardTo"
-        Me.chkForwardTo.Size = New System.Drawing.Size(84, 19)
+        Me.chkForwardTo.Size = New System.Drawing.Size(38, 19)
         Me.chkForwardTo.TabIndex = 6
-        Me.chkForwardTo.Text = "Forward To"
+        Me.chkForwardTo.Text = "To"
         Me.chkForwardTo.UseVisualStyleBackColor = True
         '
         'chkForwardFrom
         '
         Me.chkForwardFrom.AutoSize = True
         Me.chkForwardFrom.Enabled = False
-        Me.chkForwardFrom.Location = New System.Drawing.Point(374, 10)
+        Me.chkForwardFrom.Location = New System.Drawing.Point(413, 9)
         Me.chkForwardFrom.Name = "chkForwardFrom"
-        Me.chkForwardFrom.Size = New System.Drawing.Size(100, 19)
+        Me.chkForwardFrom.Size = New System.Drawing.Size(54, 19)
         Me.chkForwardFrom.TabIndex = 5
-        Me.chkForwardFrom.Text = "Forward From"
+        Me.chkForwardFrom.Text = "From"
         Me.chkForwardFrom.UseVisualStyleBackColor = True
         '
         'pnlShowSystem
@@ -207,7 +220,7 @@ Partial Class Form1
         Me.pnlShowSystem.BackColor = System.Drawing.Color.Transparent
         Me.pnlShowSystem.Location = New System.Drawing.Point(240, 36)
         Me.pnlShowSystem.Name = "pnlShowSystem"
-        Me.pnlShowSystem.Size = New System.Drawing.Size(446, 265)
+        Me.pnlShowSystem.Size = New System.Drawing.Size(376, 272)
         Me.pnlShowSystem.TabIndex = 0
         '
         'btnRemoveSystem
@@ -232,7 +245,7 @@ Partial Class Form1
         'btnViewRawConfig
         '
         Me.btnViewRawConfig.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnViewRawConfig.Location = New System.Drawing.Point(575, 6)
+        Me.btnViewRawConfig.Location = New System.Drawing.Point(505, 5)
         Me.btnViewRawConfig.Name = "btnViewRawConfig"
         Me.btnViewRawConfig.Size = New System.Drawing.Size(111, 25)
         Me.btnViewRawConfig.TabIndex = 2
@@ -246,7 +259,7 @@ Partial Class Form1
         Me.lsvSystemsList.Location = New System.Drawing.Point(6, 36)
         Me.lsvSystemsList.MultiSelect = False
         Me.lsvSystemsList.Name = "lsvSystemsList"
-        Me.lsvSystemsList.Size = New System.Drawing.Size(228, 265)
+        Me.lsvSystemsList.Size = New System.Drawing.Size(228, 272)
         Me.lsvSystemsList.TabIndex = 0
         Me.lsvSystemsList.UseCompatibleStateImageBehavior = False
         Me.lsvSystemsList.View = System.Windows.Forms.View.List
@@ -271,7 +284,7 @@ Partial Class Form1
         Me.tpgOutbox.Location = New System.Drawing.Point(4, 24)
         Me.tpgOutbox.Name = "tpgOutbox"
         Me.tpgOutbox.Padding = New System.Windows.Forms.Padding(3)
-        Me.tpgOutbox.Size = New System.Drawing.Size(692, 304)
+        Me.tpgOutbox.Size = New System.Drawing.Size(622, 314)
         Me.tpgOutbox.TabIndex = 1
         Me.tpgOutbox.Text = "Outbox"
         Me.tpgOutbox.UseVisualStyleBackColor = True
@@ -289,16 +302,16 @@ Partial Class Form1
         '
         Me.tbxRecipient.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.tbxRecipient.Location = New System.Drawing.Point(71, 7)
+        Me.tbxRecipient.Location = New System.Drawing.Point(67, 6)
         Me.tbxRecipient.MaxLength = 256
         Me.tbxRecipient.Name = "tbxRecipient"
-        Me.tbxRecipient.Size = New System.Drawing.Size(378, 23)
+        Me.tbxRecipient.Size = New System.Drawing.Size(311, 23)
         Me.tbxRecipient.TabIndex = 4
         '
         'btnAddFile
         '
         Me.btnAddFile.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnAddFile.Location = New System.Drawing.Point(455, 6)
+        Me.btnAddFile.Location = New System.Drawing.Point(385, 5)
         Me.btnAddFile.Name = "btnAddFile"
         Me.btnAddFile.Size = New System.Drawing.Size(114, 25)
         Me.btnAddFile.TabIndex = 1
@@ -309,7 +322,7 @@ Partial Class Form1
         '
         Me.btnRemoveFile.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnRemoveFile.Enabled = False
-        Me.btnRemoveFile.Location = New System.Drawing.Point(575, 6)
+        Me.btnRemoveFile.Location = New System.Drawing.Point(505, 5)
         Me.btnRemoveFile.Name = "btnRemoveFile"
         Me.btnRemoveFile.Size = New System.Drawing.Size(111, 25)
         Me.btnRemoveFile.TabIndex = 3
@@ -327,7 +340,7 @@ Partial Class Form1
         Me.lsvFilesToSend.GridLines = True
         Me.lsvFilesToSend.Location = New System.Drawing.Point(6, 36)
         Me.lsvFilesToSend.Name = "lsvFilesToSend"
-        Me.lsvFilesToSend.Size = New System.Drawing.Size(960, 273)
+        Me.lsvFilesToSend.Size = New System.Drawing.Size(616, 273)
         Me.lsvFilesToSend.TabIndex = 0
         Me.lsvFilesToSend.UseCompatibleStateImageBehavior = False
         Me.lsvFilesToSend.View = System.Windows.Forms.View.Details
@@ -366,7 +379,7 @@ Partial Class Form1
         Me.tpgCall.Location = New System.Drawing.Point(4, 24)
         Me.tpgCall.Name = "tpgCall"
         Me.tpgCall.Padding = New System.Windows.Forms.Padding(3)
-        Me.tpgCall.Size = New System.Drawing.Size(692, 304)
+        Me.tpgCall.Size = New System.Drawing.Size(622, 314)
         Me.tpgCall.TabIndex = 2
         Me.tpgCall.Text = "Call"
         Me.tpgCall.UseVisualStyleBackColor = True
@@ -379,19 +392,19 @@ Partial Class Form1
         Me.tbxCallLog.BackColor = System.Drawing.SystemColors.ControlDarkDark
         Me.tbxCallLog.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.tbxCallLog.ForeColor = System.Drawing.SystemColors.ControlLightLight
-        Me.tbxCallLog.Location = New System.Drawing.Point(274, 37)
+        Me.tbxCallLog.Location = New System.Drawing.Point(274, 36)
         Me.tbxCallLog.Multiline = True
         Me.tbxCallLog.Name = "tbxCallLog"
         Me.tbxCallLog.ReadOnly = True
         Me.tbxCallLog.ScrollBars = System.Windows.Forms.ScrollBars.Both
-        Me.tbxCallLog.Size = New System.Drawing.Size(412, 261)
+        Me.tbxCallLog.Size = New System.Drawing.Size(342, 272)
         Me.tbxCallLog.TabIndex = 5
         '
         'btnSaveLog
         '
         Me.btnSaveLog.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnSaveLog.Enabled = False
-        Me.btnSaveLog.Location = New System.Drawing.Point(572, 6)
+        Me.btnSaveLog.Location = New System.Drawing.Point(505, 5)
         Me.btnSaveLog.Name = "btnSaveLog"
         Me.btnSaveLog.Size = New System.Drawing.Size(114, 25)
         Me.btnSaveLog.TabIndex = 7
@@ -401,7 +414,7 @@ Partial Class Form1
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(272, 18)
+        Me.Label1.Location = New System.Drawing.Point(272, 15)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(98, 15)
         Me.Label1.TabIndex = 6
@@ -416,7 +429,7 @@ Partial Class Form1
         Me.Panel1.Controls.Add(Me.btnCall)
         Me.Panel1.Location = New System.Drawing.Point(6, 7)
         Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(262, 291)
+        Me.Panel1.Size = New System.Drawing.Size(262, 301)
         Me.Panel1.TabIndex = 4
         '
         'tbxCallInfo
@@ -429,7 +442,7 @@ Partial Class Form1
         Me.tbxCallInfo.Multiline = True
         Me.tbxCallInfo.Name = "tbxCallInfo"
         Me.tbxCallInfo.ReadOnly = True
-        Me.tbxCallInfo.Size = New System.Drawing.Size(230, 205)
+        Me.tbxCallInfo.Size = New System.Drawing.Size(230, 215)
         Me.tbxCallInfo.TabIndex = 4
         Me.tbxCallInfo.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
@@ -439,7 +452,7 @@ Partial Class Form1
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnCall.Enabled = False
         Me.btnCall.Font = New System.Drawing.Font("Segoe UI", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.btnCall.Location = New System.Drawing.Point(16, 228)
+        Me.btnCall.Location = New System.Drawing.Point(16, 238)
         Me.btnCall.Name = "btnCall"
         Me.btnCall.Size = New System.Drawing.Size(230, 47)
         Me.btnCall.TabIndex = 3
@@ -454,7 +467,7 @@ Partial Class Form1
         Me.tpgInbox.Controls.Add(Me.btnOpenExplorer)
         Me.tpgInbox.Location = New System.Drawing.Point(4, 24)
         Me.tpgInbox.Name = "tpgInbox"
-        Me.tpgInbox.Size = New System.Drawing.Size(692, 304)
+        Me.tpgInbox.Size = New System.Drawing.Size(622, 314)
         Me.tpgInbox.TabIndex = 4
         Me.tpgInbox.Text = "Inbox"
         Me.tpgInbox.UseVisualStyleBackColor = True
@@ -463,10 +476,10 @@ Partial Class Form1
         '
         Me.tbxReceiveFolder.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.tbxReceiveFolder.Location = New System.Drawing.Point(161, 7)
+        Me.tbxReceiveFolder.Location = New System.Drawing.Point(156, 6)
         Me.tbxReceiveFolder.Name = "tbxReceiveFolder"
         Me.tbxReceiveFolder.ReadOnly = True
-        Me.tbxReceiveFolder.Size = New System.Drawing.Size(405, 23)
+        Me.tbxReceiveFolder.Size = New System.Drawing.Size(338, 23)
         Me.tbxReceiveFolder.TabIndex = 11
         '
         'Label3
@@ -489,7 +502,7 @@ Partial Class Form1
         Me.lsvReceivedFiles.GridLines = True
         Me.lsvReceivedFiles.Location = New System.Drawing.Point(3, 36)
         Me.lsvReceivedFiles.Name = "lsvReceivedFiles"
-        Me.lsvReceivedFiles.Size = New System.Drawing.Size(686, 265)
+        Me.lsvReceivedFiles.Size = New System.Drawing.Size(616, 265)
         Me.lsvReceivedFiles.Sorting = System.Windows.Forms.SortOrder.Ascending
         Me.lsvReceivedFiles.TabIndex = 9
         Me.lsvReceivedFiles.UseCompatibleStateImageBehavior = False
@@ -498,7 +511,7 @@ Partial Class Form1
         'btnOpenExplorer
         '
         Me.btnOpenExplorer.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnOpenExplorer.Location = New System.Drawing.Point(572, 6)
+        Me.btnOpenExplorer.Location = New System.Drawing.Point(505, 5)
         Me.btnOpenExplorer.Name = "btnOpenExplorer"
         Me.btnOpenExplorer.Size = New System.Drawing.Size(114, 25)
         Me.btnOpenExplorer.TabIndex = 8
@@ -515,7 +528,7 @@ Partial Class Form1
         Me.tpgCygwin.Location = New System.Drawing.Point(4, 24)
         Me.tpgCygwin.Name = "tpgCygwin"
         Me.tpgCygwin.Padding = New System.Windows.Forms.Padding(3)
-        Me.tpgCygwin.Size = New System.Drawing.Size(692, 304)
+        Me.tpgCygwin.Size = New System.Drawing.Size(622, 314)
         Me.tpgCygwin.TabIndex = 3
         Me.tpgCygwin.Text = "Cygwin"
         Me.tpgCygwin.UseVisualStyleBackColor = True
@@ -532,7 +545,7 @@ Partial Class Form1
         Me.lsvConfigReport.MultiSelect = False
         Me.lsvConfigReport.Name = "lsvConfigReport"
         Me.lsvConfigReport.ShowGroups = False
-        Me.lsvConfigReport.Size = New System.Drawing.Size(680, 158)
+        Me.lsvConfigReport.Size = New System.Drawing.Size(610, 158)
         Me.lsvConfigReport.TabIndex = 28
         Me.lsvConfigReport.UseCompatibleStateImageBehavior = False
         Me.lsvConfigReport.View = System.Windows.Forms.View.Details
@@ -594,7 +607,7 @@ Partial Class Form1
         'btnChangeNodename
         '
         Me.btnChangeNodename.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnChangeNodename.Location = New System.Drawing.Point(562, 58)
+        Me.btnChangeNodename.Location = New System.Drawing.Point(499, 58)
         Me.btnChangeNodename.Name = "btnChangeNodename"
         Me.btnChangeNodename.Size = New System.Drawing.Size(111, 25)
         Me.btnChangeNodename.TabIndex = 20
@@ -608,7 +621,7 @@ Partial Class Form1
         Me.lblUUCPNodeName.Location = New System.Drawing.Point(186, 59)
         Me.lblUUCPNodeName.Name = "lblUUCPNodeName"
         Me.lblUUCPNodeName.ReadOnly = True
-        Me.lblUUCPNodeName.Size = New System.Drawing.Size(370, 23)
+        Me.lblUUCPNodeName.Size = New System.Drawing.Size(307, 23)
         Me.lblUUCPNodeName.TabIndex = 19
         '
         'Label8
@@ -624,7 +637,7 @@ Partial Class Form1
         'Button2
         '
         Me.Button2.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Button2.Location = New System.Drawing.Point(562, 28)
+        Me.Button2.Location = New System.Drawing.Point(499, 28)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(111, 25)
         Me.Button2.TabIndex = 15
@@ -638,7 +651,7 @@ Partial Class Form1
         Me.tbxCygwinRoot.Location = New System.Drawing.Point(186, 29)
         Me.tbxCygwinRoot.Name = "tbxCygwinRoot"
         Me.tbxCygwinRoot.ReadOnly = True
-        Me.tbxCygwinRoot.Size = New System.Drawing.Size(370, 23)
+        Me.tbxCygwinRoot.Size = New System.Drawing.Size(307, 23)
         Me.tbxCygwinRoot.TabIndex = 14
         '
         'Label5
@@ -653,7 +666,7 @@ Partial Class Form1
         '
         'OpenFileDialog1
         '
-        Me.OpenFileDialog1.FileName = "OpenFileDialog1"
+        Me.OpenFileDialog1.Title = "Add which file to Outbox?"
         '
         'lblSelectedSystemName
         '
@@ -689,15 +702,15 @@ Partial Class Form1
         '
         'lblNodeName
         '
-        Me.lblNodeName.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.lblNodeName.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.lblNodeName.BackColor = System.Drawing.SystemColors.ControlDark
         Me.lblNodeName.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.lblNodeName.ForeColor = System.Drawing.SystemColors.Window
-        Me.lblNodeName.Location = New System.Drawing.Point(198, 343)
+        Me.lblNodeName.Location = New System.Drawing.Point(88, 353)
         Me.lblNodeName.MaxLength = 256
         Me.lblNodeName.Name = "lblNodeName"
         Me.lblNodeName.ReadOnly = True
-        Me.lblNodeName.Size = New System.Drawing.Size(254, 16)
+        Me.lblNodeName.Size = New System.Drawing.Size(238, 16)
         Me.lblNodeName.TabIndex = 10
         Me.lblNodeName.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
@@ -712,6 +725,10 @@ Partial Class Form1
         '
         Me.Timer1.Interval = 3000
         '
+        'FolderBrowserDialog1
+        '
+        Me.FolderBrowserDialog1.Description = "Where is your Cygwin root folder?"
+        '
         'FolderBrowserDialog2
         '
         Me.FolderBrowserDialog2.Description = "Save call log file where?"
@@ -722,7 +739,7 @@ Partial Class Form1
         Me.tbxSelectedSystemName.BackColor = System.Drawing.SystemColors.ControlDark
         Me.tbxSelectedSystemName.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.tbxSelectedSystemName.ForeColor = System.Drawing.SystemColors.Window
-        Me.tbxSelectedSystemName.Location = New System.Drawing.Point(458, 343)
+        Me.tbxSelectedSystemName.Location = New System.Drawing.Point(384, 353)
         Me.tbxSelectedSystemName.MaxLength = 256
         Me.tbxSelectedSystemName.Name = "tbxSelectedSystemName"
         Me.tbxSelectedSystemName.ReadOnly = True
@@ -730,11 +747,33 @@ Partial Class Form1
         Me.tbxSelectedSystemName.TabIndex = 11
         Me.tbxSelectedSystemName.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
+        'Label4
+        '
+        Me.Label4.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.Label4.AutoSize = True
+        Me.Label4.Location = New System.Drawing.Point(16, 353)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(66, 15)
+        Me.Label4.TabIndex = 12
+        Me.Label4.Text = "Nodename"
+        '
+        'Label6
+        '
+        Me.Label6.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Label6.AutoSize = True
+        Me.Label6.Location = New System.Drawing.Point(334, 353)
+        Me.Label6.Name = "Label6"
+        Me.Label6.Size = New System.Drawing.Size(44, 15)
+        Me.Label6.TabIndex = 13
+        Me.Label6.Text = "Calling"
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(724, 371)
+        Me.ClientSize = New System.Drawing.Size(654, 381)
+        Me.Controls.Add(Me.Label6)
+        Me.Controls.Add(Me.Label4)
         Me.Controls.Add(Me.tbxSelectedSystemName)
         Me.Controls.Add(Me.lblNodeName)
         Me.Controls.Add(Me.lblNRecipients)
@@ -742,7 +781,7 @@ Partial Class Form1
         Me.Controls.Add(Me.lblNFiles)
         Me.Controls.Add(Me.lblSelectedSystemName)
         Me.Controls.Add(Me.TabControl1)
-        Me.MinimumSize = New System.Drawing.Size(600, 300)
+        Me.MinimumSize = New System.Drawing.Size(670, 420)
         Me.Name = "Form1"
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show
         Me.Text = "Squirrel UUCP Caller"
@@ -833,4 +872,7 @@ Partial Class Form1
     Friend WithEvents tbxSelectedSystemName As TextBox
     Friend WithEvents chkForwardTo As CheckBox
     Friend WithEvents chkForwardFrom As CheckBox
+    Friend WithEvents Label4 As Label
+    Friend WithEvents Label6 As Label
+    Friend WithEvents Label7 As Label
 End Class

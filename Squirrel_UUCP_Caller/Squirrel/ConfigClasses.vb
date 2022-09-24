@@ -1,38 +1,8 @@
 ﻿Imports System.ComponentModel
 Imports System.IO
+Imports System.IO.Enumeration
 
 Namespace ConfigClasses
-
-    '-------------------------------------------------------------------------
-    'Transport classes
-    '
-    'A port object may contain one of these classes.
-    '-------------------------------------------------------------------------
-    Public Class KnownSystemNullTransport
-        'Instance of this class should be created if a UUCP system is just in
-        'the sys config file as a known system.
-        '
-        'Properties of a KnownSystemNullTransport
-        Public ReadOnly TypeName As String = "KnownSystem"
-    End Class
-    Public Class SSHTransport
-        'Instance of this class should be created if a UUCP system has an SSH
-        'pipe port defined.
-        '
-        'Properties of an SSHTransport:
-        Public ReadOnly TypeName As String = "SSHTransport"
-        Public SSHBinPath As String
-        Public SSHKeyPath As String
-        Public SSHLoginName As String
-        Public SSHServer As String
-        Public uucicoUsername As String
-        Public Sub New(in_SSHBinPath, in_SSHKeyPath, in_SSHLoginName, in_SSHServer)
-            SSHBinPath = in_SSHBinPath
-            SSHKeyPath = in_SSHKeyPath
-            SSHLoginName = in_SSHLoginName
-            SSHServer = in_SSHServer
-        End Sub
-    End Class
 
     '-------------------------------------------------------------------------
     'Port class (and helper class Feeling for MakeTransportObject method)
@@ -71,11 +41,13 @@ Namespace ConfigClasses
             '
             'The object assigned to TransportObject can provide
             'transport-specific properties and methods.
-            '
+
+            Dim params As New Hashtable
+
             Select Case port_confline_type
                 Case "none-known-system"
                     DebugOut(">> type is none-known-system")
-                    TransportObject = New KnownSystemNullTransport
+                    TransportObject = Transports.Make("KnownSystem", params)
                     IsTransportObjectDefined = True
                 Case "pipe"
                     DebugOut(">> type is pipe")
@@ -88,20 +60,17 @@ Namespace ConfigClasses
                     Dim cstart As Integer = 1
                     Dim cend As Integer = Len(port_confline_type)
                     Dim ctoken As String = ""
-                    Dim cnextflag As Integer = 4
+                    Dim cnextflag As Integer = 1
 
                     'Tracking our confidences.
                     Dim Confidence As New Collection
-                    Confidence.Add(New Feeling, "ssh")
-                    Confidence.Add(New Feeling, "serial")
+                    For Each Supported In Transports.AvailableTransports
+                        Confidence.Add(New Feeling, Supported.Key)
+                    Next
 
-                    'We gather data as we see it.  Variables are allocated
-                    'now for each transport type we attempt to discern here.
-                    Dim new_SSHBinPath As String = ""
-                    Dim new_SSHKeyPath As String = ""
-                    Dim new_SSHLoginName As String = ""
-                    Dim new_SSHServer As String = ""
-                    Dim new_SSHPort As String = ""
+                    'We gather data as we see it.  Recognized parameters will
+                    'be added to the hashtable in a format recognizable by 
+                    'transport objects in the Transports module.
 
                     'Let's start going through the command text word by word.
                     'cstart and cend are pointers into the string, we extract
@@ -123,22 +92,22 @@ Namespace ConfigClasses
                         End Select
                         Select Case cnextflag
                             Case 1 'beginning of string/first token
-                                new_SSHBinPath = ctoken
-                                If new_SSHBinPath = "/bin/ssh" Then Confidence.Item("ssh").Stronger(10)
-                                If new_SSHBinPath = "/usr/bin/ssh" Then Confidence.Item("ssh").Stronger(10)
-                                If new_SSHBinPath = "ssh" Then Confidence.Item("ssh").Stronger(10)
+                                params("INTERNAL-SSHBinPath") = ctoken
+                                If ctoken = "/bin/ssh" Then Confidence.Item("SSHTransport").Stronger(10)
+                                If ctoken = "/usr/bin/ssh" Then Confidence.Item("SSHTransport").Stronger(10)
+                                If ctoken = "ssh" Then Confidence.Item("SSHTransport").Stronger(10)
                             Case 2 'end of string/last token, also time to exit
-                                new_SSHServer = ctoken
+                                params("ssh-server") = ctoken
                                 Exit Do
                             Case 100 '-i option for SSH key path
-                                new_SSHKeyPath = ctoken
-                                Confidence.Item("ssh").Stronger(1)
+                                params("INTERNAL-SSHKeyPath") = ctoken
+                                Confidence.Item("SSHTransport").Stronger(1)
                             Case 101 '-l option for SSH login name
-                                new_SSHLoginName = ctoken
-                                Confidence.Item("ssh").Stronger(1)
+                                params("ssh-username") = ctoken
+                                Confidence.Item("SSHTransport").Stronger(1)
                             Case 102 '-p option for SSH port
-                                new_SSHPort = ctoken
-                                Confidence.Item("ssh").Stronger(1)
+                                params("INTERNAL-SSHPort") = ctoken
+                                Confidence.Item("SSHTransport").Stronger(1)
                         End Select
                         cnextflag = 0
                     Loop
@@ -147,11 +116,11 @@ Namespace ConfigClasses
                     'This doesn't handle ties gracefully - FCFS.
                     Dim top As Integer = 0
                     Dim topKind As String = "meaningless"
-                    For Each kind As String In {"ssh", "serial"}
-                        DebugOut(">> Confidence that this is '" & kind & "' is " & Confidence.Item(kind).Level)
-                        If Confidence.Item(kind).Level > top Then
-                            top = Confidence.Item(kind).Level
-                            topKind = kind
+
+                    For Each Supported In Transports.AvailableTransports
+                        If Confidence.Item(Supported.Key).Level > top Then
+                            top = Confidence.Item(Supported.Key).Level
+                            topKind = Supported.Key
                         End If
                     Next
 
@@ -161,12 +130,24 @@ Namespace ConfigClasses
                     'If we don't know and topKind = "meaningless", then we
                     'don't make an object, and don't set
                     'IsTransportObjectDefined.
-                    If topKind = "ssh" Then
-                        DebugOut(">> Creatng a new SSHTransport for this port")
-                        If new_SSHPort <> "" And new_SSHPort <> "22" Then
-                            new_SSHServer &= ":" & new_SSHPort
+                    If topKind = "meaningless" Then
+                        DebugOut(">> Not creating a transport object for this port.")
+                        Exit Sub
+                    End If
+
+                    'Fixup for SSHTransport if port is not specified.
+                    If topKind = "SSHTransport" Then
+                        If params("INTERNAL-SSHPort") <> "" And params("INTERNAL-SSHPort") <> "22" Then
+                            params("ssh-server") &= ":" & params("INTERNAL-SSHPort")
                         End If
-                        TransportObject = New SSHTransport(new_SSHBinPath, new_SSHKeyPath, new_SSHLoginName, new_SSHServer)
+                    End If
+
+                    'Make the object.
+                    DebugOut(">> Creatng a new " & topKind & " for this port")
+
+                    TransportObject = Transports.Make(topKind, params)
+
+                    If Not IsNothing(TransportObject) Then
                         IsTransportObjectDefined = True
                     End If
 
@@ -193,6 +174,32 @@ Namespace ConfigClasses
         Public Sub New(in_configFilePath As String, in_name As String)
             Name = in_name
         End Sub
+
+        Public Function GetTransportParameters() As Hashtable
+            Dim out_hashtable As New Hashtable
+            Dim CallGetProperties As Boolean = True
+            If IsNothing(Port) Or Not IsPortDefined Then
+                CallGetProperties = False
+            End If
+            If Not Port.IsTransportObjectDefined Then
+                CallGetProperties = False
+            End If
+            If CallGetProperties Then
+                For Each TransportProperty In Port.TransportObject.GetProperties()
+                    DebugOut(" " & TransportProperty.key & " = " & TransportProperty.value)
+                    out_hashtable(TransportProperty.Key) = TransportProperty.Value
+                Next
+                out_hashtable("INTERNAL-PortName") = Port.Name
+            End If
+
+            'Standard properties that will be in any transport parameter
+            'hashtable.
+            out_hashtable("system-name") = Name
+            out_hashtable("uucico-call-username") = uucicoUsername
+
+            GetTransportParameters = out_hashtable
+        End Function
+
     End Class
 
     '-------------------------------------------------------------------------
@@ -281,6 +288,7 @@ Namespace ConfigClasses
             If SetRootFromConfig Then
                 CurrentSettings.LoadSettings()
                 If CurrentSettings.CYGROOT = "" Then
+                    Problems.Add(ConfigProblems(10))
                     SquirrelComms.Item(29).SystemError("")
                 Else
                     SetCygwinRoot(CurrentSettings.CYGROOT)
@@ -415,12 +423,12 @@ Namespace ConfigClasses
                 'nodename and we'll make a fresh file.
                 DebugOut("  doesn't exist - generating one after asking user for a nodename")
 
-                Dim Dialog0 As New UUCPNodenameChange
+                Dim Dialog0 As New frmUUCPNodenameChange
                 'NOTE: uuname will be local computer name by default
-                UUCPNodenameChange.tbxNewUUCPNodename.Text = uuname
-                UUCPNodenameChange.ShowDialog()
+                frmUUCPNodenameChange.tbxNewUUCPNodename.Text = uuname
+                frmUUCPNodenameChange.ShowDialog()
                 'If the user didn't cooperate ...
-                If Not UUCPNodenameChange.NewNameSet Then
+                If Not frmUUCPNodenameChange.NewNameSet Then
                     '... then that's a problem.
                     DebugOut("  user cancelled out of dialog, not reading config")
                     SquirrelComms.Item(12).UserError()
@@ -431,7 +439,7 @@ Namespace ConfigClasses
                     DebugOut("  user provided a new nodename, making new config file")
                     'more specifically, *try* to make the file...
                     If Not NewUUCPConfigFile(Winpathof_etcuucp & "\config",
-                                             UUCPNodenameChange.tbxNewUUCPNodename.Text) Then
+                                             frmUUCPNodenameChange.tbxNewUUCPNodename.Text) Then
                         'if something goes wrong while making the file, then
                         'gosh darn, report and obviously we won't be reading
                         'it.
@@ -440,7 +448,7 @@ Namespace ConfigClasses
                     End If
                 End If
                 'done with the dialog.
-                UUCPNodenameChange.Dispose()
+                frmUUCPNodenameChange.Dispose()
             End If
 
             If ShouldReadConfig Then
@@ -568,6 +576,7 @@ Namespace ConfigClasses
 
             'Now, read systems from the UUCP sys config file.
             '-----------------------------------------------------------------
+
             DebugOut(" reading UUCP sys file '" & Winpathof_etcuucp & "\sys' ...")
             'Let's check if that exists.
             If Not Validation_DoesFileExist(Winpathof_etcuucp & "\sys") Then

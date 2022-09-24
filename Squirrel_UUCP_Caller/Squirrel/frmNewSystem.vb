@@ -1,4 +1,7 @@
-﻿Public Class frmNewSystem
+﻿Imports System.ComponentModel.Design
+Imports System.Threading
+
+Public Class frmNewSystem
     'Needed to get config file paths.  Passed to us by New()
     Public conf As Object = Nothing
     'Current Builder in the panel.  The Builder is responsible for writing the
@@ -6,28 +9,43 @@
     'access to some info in Conf.
     Public Builder As Object = Nothing
     Public NeedRefresh As Boolean = False
-
-    Public Sub PanelChange(in_text As String)
-        btnInviteFile.Enabled = False
-        lbxBuilders.Enabled = False
-        Dim Panel As New ucoForm2_Panel1Replace
-        Panel1.Controls.Clear()
-        Panel1.Controls.Add(Panel)
-    End Sub
     Public Sub New(in_conf As Object)
         DebugOut("frmNewSystem.New(in_conf)")
         ' This call is required by the designer.
         InitializeComponent()
 
-        ' Add any initialization after the InitializeComponent() call.
+        'Needs a handle to current configuration.
         conf = in_conf
     End Sub
+    Public Function NewInviteDetailLine(in_type As String, in_description As String) As ListViewItem
+        Dim lsv As New ListViewItem
+        lsv.SubItems.Insert(0, New ListViewItem.ListViewSubItem With {.Text = in_type})
+        lsv.SubItems.Insert(1, New ListViewItem.ListViewSubItem With {.Text = in_description})
+        Return lsv
+    End Function
+    Public Sub PanelChange(in_text As String)
+        btnInviteFile.Enabled = False
+        lbxBuilders.Enabled = False
+        Dim Panel As New frmNewSystem_NowEditing
+        Panel1.Controls.Clear()
+        Panel1.Controls.Add(Panel)
+    End Sub
+
     Private Sub frmNewSystem_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         DebugOut("frmNewSystem.Load(...)")
         btnBuildSystem.Enabled = False
         btnCancel.Enabled = True
+
+        lbxBuilders.Items.Add("[Select]")
+        For Each Supported In AvailableTransports
+            If AvailableBuilders.Contains(LCase(Supported.Key)) Then '
+                lbxBuilders.Items.Add(Supported.Key)
+            End If
+        Next
+
         lbxBuilders.SelectedIndex = 0
         lbxBuilders_SelectedIndexChanged(lbxBuilders, EventArgs.Empty)
+        btnBuildSystem.Enabled = False
     End Sub
     Private Sub lbxBuilders_SelectedIndexChanged(sender As Object, e As EventArgs) Handles lbxBuilders.SelectedIndexChanged
         'When the user selects a system type from the list, we dynamically 
@@ -36,44 +54,29 @@
         'The builder gets a handle back to the listbox, so it can disable the
         'listbox once editing starts.
         '
-        If lbxBuilders.SelectedIndex <> 0 Then
-            pnlNewSystemBuilderObject.Controls.Clear()
-            Select Case lbxBuilders.SelectedIndex
-                Case 1
-                    'ucoNewSystem_SSHTransport needs access to a few items in
-                    'our config object to perform validation.  These are
-                    'passed via New.
-                    '
-                    'Honestly probably should just pass the whole object.
-                    Builder = New ucoNewSystem_SSHTransport(
-                        Me,
-                        conf.Winpathof_etcuucp,
-                        conf.Ports,
-                        conf.Systems)
-                Case 2
-                    'ucoNewSystem_KnownSystem
-                    '
-                    Builder = New ucoNewSystem_KnownSystem(
-                        Me,
-                        conf.Winpathof_etcuucp,
-                        conf.Ports,
-                        conf.Systems)
-            End Select
-            pnlNewSystemBuilderObject.Controls.Add(Builder)
+        If lbxBuilders.SelectedIndex > 0 Then
             btnBuildSystem.Enabled = True
+            Dim TransportName As String = lbxBuilders.SelectedItem.ToString
+            pnlNewSystemBuilderObject.Controls.Clear()
+            Builder = Activator.CreateInstance(AvailableBuilders(Trim(LCase(TransportName))),
+                                               Me, conf.Winpathof_etcuucp, conf.Ports, conf.Systems)
         Else
+            btnBuildSystem.Enabled = False
             pnlNewSystemBuilderObject.Controls.Clear()
             'ucoNewSystem_NoneSelected is a "blank" builder to just enable
             'something to be displayed for the default [Select] listbox item.
-            Builder = New ucoNewSystem_NoneSelected
-            pnlNewSystemBuilderObject.Controls.Add(Builder)
-            btnBuildSystem.Enabled = False
+            Builder = New ucoBUILDER_NoneSelected
         End If
+        pnlNewSystemBuilderObject.Controls.Add(Builder)
     End Sub
 
     Private Sub btnBuildSystem_Click(sender As Object, e As EventArgs) Handles btnBuildSystem.Click
         If Builder Is Nothing Then
             DebugOut("btnBuildSystem_Click called while Builder was Nothing")
+            Exit Sub
+        End If
+        If lbxBuilders.SelectedIndex = 0 Then
+            DebugOut("frmNewSystem.btnBuildSystem_Click called while lbxBuilders.SelectedIndex was 0 ")
             Exit Sub
         End If
 
@@ -82,14 +85,14 @@
         'Ask builder to spit out a hashtable, bail if that can't be done for
         'some weird reason
         NewSystem = Builder.MakeFromUI
-        If NewSystem("falied") Then
+        If NewSystem("failed") Then
             MsgBox(NewSystem("whyfailed"), MsgBoxStyle.Critical, "Can't create New system because...")
             Exit Sub
         End If
 
         'Call builder's validator on the hashtable, bail if not valid
         Dim NewSystemProblems As String
-        NewSystemProblems = Builder.CheckIfValid(NewSystem)
+        NewSystemProblems = Builder.CheckIfValid(NewSystem, 1)
         If NewSystemProblems <> "" Then
             MsgBox(NewSystemProblems, MsgBoxStyle.Critical, "Can't create new system because...")
             Exit Sub
@@ -256,26 +259,13 @@
                 Exit Sub
             End If
 
-            Select Case LCase(NewSystem("transport-type"))
-                Case "knownsystem"
-                    Builder = New ucoNewSystem_KnownSystem(
-                        Me,
-                        conf.Winpathof_etcuucp,
-                        conf.Ports,
-                        conf.Systems)
-                Case "sshtransport"
-                    'ucoNewSystem_SSHTransport needs access to a few items in
-                    'our config object to perform validation, as well as this
-                    'object to make reactive UI changes.  Passed via New.
-                    Builder = New ucoNewSystem_SSHTransport(
-                        Me,
-                        conf.Winpathof_etcuucp,
-                        conf.Ports,
-                        conf.Systems)
-                Case Else
-                    SquirrelComms.Item(23).SystemError("The transport type in the invite file was " & Chr(34) & NewSystem("transport-type") & Chr(34))
-                    Exit Sub
-            End Select
+            If AvailableBuilders.Contains(Trim(LCase(NewSystem("transport-type")))) Then
+                Builder = Activator.CreateInstance(AvailableBuilders(Trim(LCase(NewSystem("transport-type")))),
+                                                   Me, conf.Winpathof_etcuucp, conf.Ports, conf.Systems)
+            Else
+                SquirrelComms.Item(23).SystemError("The transport type in the invite file was " & Chr(34) & NewSystem("transport-type") & Chr(34))
+                Exit Sub
+            End If
 
             'Call builder's validator on the hashtable, bail if not valid
             Dim NewSystemProblems As String
@@ -287,146 +277,170 @@
 
             'Confirm things that the invite file imposes on the UUCP system
 
+            Dim Warner As New frmInviteWarner
+
+            Dim n As String = NewSystem("system-name")
+            Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                           ">>>",
+                                           "This invitation is from " & n
+                                           ))
+            Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                           ">>>",
+                                           n & " will take calls from you using " & NewSystem("transport-type")
+                                           ))
+
             'expected-caller-nodename
+            'TODO: Verify incoming nodename is valid and gag if it's not.
             If NewSystem.Contains("expected-caller-nodename") Then
                 If NewSystem("expected-caller-nodename") <> conf.uuname Then
-                    Dim result As MsgBoxResult
-                    result = MsgBox("The system in this invite file wants your nodename to be:" & vbCrLf & vbCrLf &
-                                      conf.uuname & vbCrLf & vbCrLf &
-                                      "Your nodename is currently:" & vbCrLf & vbCrLf &
-                                      conf.uuname & vbCrLf & vbCrLf &
-                                    "Do you want to change it?" & vbCrLf & vbCrLf &
-                                    "WARNING: If you call existing systems expecting your nodename to be " & conf.uuname & " and change it here, your calls will stop working until the remote system is updated with your new nodename.",
-                                    MsgBoxStyle.YesNoCancel,
-                                    "Change nodename?")
-                    If result = MsgBoxResult.Cancel Then Exit Sub
-                    If result = MsgBoxResult.No Then NewSystem.Remove("expected-caller-nodename")
-                Else
-                    NewSystem.Remove("expected-caller-nodename")
+                    Warner.WantsToChangeNodename()
+                    Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                                      ">>>",
+                                                      n & " wants your nodename to be " & NewSystem("expected-caller-nodename")
+                                                      ))
                 End If
             End If
+
+            Warner.InviteDetails.Items.Add(NewInviteDetailLine("", ""))
 
             Dim SystemsToKnowPile As List(Of String) = New List(Of String)
 
             If NewSystem.Contains("forward-to-me") Then
-                Dim CommText As String = ""
+                Warner.HasForwardingOptions()
+                Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                                      ">>>",
+                                                      n & " will carry/hold files for other systems"
+                                                      ))
                 Dim Preview As String = OptionListPreview(NewSystem("forward-to-me"))
                 If Preview = "" Then
-                    CommText = "Inviting system is willing to carry/hold files for other systems." &
-                               vbCrLf & vbCrLf &
-                               "It didn't provide a list of them." &
-                               vbCrLf & vbCrLf &
-                               "Options:" & vbCrLf & vbCrLf &
-                               "YES: Add system and turn on it's 'Forward To' option" & vbCrLf & vbCrLf &
-                               "NO: Don't enable 'Forward To', but still add system" & vbCrLf & vbCrLf
+                    Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                                      "",
+                                                      "... but did not provide a list of those systems"
+                                                      ))
                 Else
-                    CommText = "Inviting system is willing to carry/hold files for other systems." &
-                               vbCrLf & vbCrLf &
-                               "It's providing the following list:" &
-                               vbCrLf &
-                               Preview & vbCrLf & vbCrLf &
-                               "Options:" & vbCrLf & vbCrLf &
-                               "YES: Add inviting system + turn on the 'Forward To' option + make each system in the above list a known system." & vbCrLf &
-                               " (This lets you specify that system as a destination even though you won't call it directly)" & vbCrLf & vbCrLf &
-                               "NO: Just add inviting system without turning on options or making other changes" & vbCrLf & vbCrLf
+                    Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                                      "",
+                                                      "... specifically: " & Preview
+                                                      ))
+                    Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                                      "",
+                                                      "(Above systems will be added as known systems)"
+                                                      ))
                 End If
-                CommText &=
-                               "CANCEL: Stop processing this invite and go back"
-
-                Dim result As MsgBoxResult
-                result = MsgBox(CommText,
-                                MsgBoxStyle.YesNoCancel,
-                                "Inviting System Will Accept Forwards From You")
-                If result = MsgBoxResult.Cancel Then Exit Sub
-                If result = MsgBoxResult.Yes Then ThrowOnThePile(SystemsToKnowPile, NewSystem("forward-to-me"))
-                If result = MsgBoxResult.No Then NewSystem.Remove("forward-to-me")
+                Warner.InviteDetails.Items.Add(NewInviteDetailLine("", ""))
             End If
 
             If NewSystem.Contains("please-forward-from-me") Then
-                Dim CommText As String = ""
+                Warner.HasForwardingOptions()
+                Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                                      ">>>",
+                                                      n & " requests you carry/hold files for other systems"
+                                                      ))
                 Dim Preview As String = OptionListPreview(NewSystem("please-forward-from-me"))
                 If Preview = "" Then
-                    CommText = "Inviting system is requesting you to carry/hold files for other systems." &
-                               vbCrLf & vbCrLf &
-                               "It didn't provide a list of them." &
-                               vbCrLf & vbCrLf &
-                               "YES: Add system and turn on it's 'Forward From' option" & vbCrLf &
-                               "NO: Don't enable 'Forward From', but still add system" & vbCrLf
+                    Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                                      ">>>",
+                                                      "... but did not provide a list of those systems"
+                                                      ))
                 Else
-                    CommText = "This system is requesting you to carry/hold files for other systems." &
-                               vbCrLf & vbCrLf &
-                               "It's providing the following list:" &
-                               vbCrLf &
-                               Preview & vbCrLf & vbCrLf &
-                               "Options:" & vbCrLf & vbCrLf &
-                               "YES: Add inviting system + turn on the 'Forward From' option + make each system in the above list a known system." & vbCrLf &
-                               " (This is required to accept files for other systems than you)" & vbCrLf & vbCrLf &
-                               "NO: Just add inviting system without turning on options or making other changes" & vbCrLf & vbCrLf
+                    Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                                      "",
+                                                      "... specifically: " & Preview
+                                                      ))
+                    Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                                      "",
+                                                      "(Above systems will be added as known systems)"
+                                                      ))
+                    ThrowOnThePile(SystemsToKnowPile, NewSystem("please-forward-from-me"))
                 End If
-                CommText &=
-                               "CANCEL: Stop processing this invite and go back"
-
-                Dim result As MsgBoxResult
-                result = MsgBox(CommText,
-                                MsgBoxStyle.YesNoCancel,
-                                "Inviting System Wants You To Accept Forwards")
-                If result = MsgBoxResult.Cancel Then Exit Sub
-                If result = MsgBoxResult.Yes Then ThrowOnThePile(SystemsToKnowPile, NewSystem("please-forward-from-me"))
-                If result = MsgBoxResult.No Then NewSystem.Remove("please-forward-from-me")
+                Warner.InviteDetails.Items.Add(NewInviteDetailLine("", ""))
             End If
 
-            'Convert in-line key to file
             Dim KeyFileName As String = RandStr() & ".key.txt"
             Dim KeyFileDest As String = Slashes(conf.Winpathof_etcuucp & "\" & KeyFileName)
 
+            If NewSystem.ContainsKey("private-key-text") Then
+                Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                                  ">>>",
+                                                  n & " provided you a private SSH key"
+                                                  ))
+                Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                                  "",
+                                                  "... which will be copied here: " & Chr(34) & KeyFileDest & Chr(34)
+                                                  ))
+            Else
+                If NewSystem.ContainsKey("private-key-file") Then
+                    Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                                      "",
+                                                      "This invite file expects an existing key file "
+                                                      ))
+                    Warner.InviteDetails.Items.Add(NewInviteDetailLine(
+                                                      "",
+                                                      "... and that key file is: " & Chr(34) & NewSystem("private-key-file") & Chr(34)
+                                                      ))
+                End If
+            End If
+
+            Warner.ShowDialog()
+            If Not Warner.Accept Then
+                Warner.Dispose()
+                Exit Sub
+            End If
+            If Warner.IgnoreForwardingOpts Then
+                If NewSystem.Contains("please-forward-from-me") Then NewSystem.Remove("please-forward-from-me")
+                If NewSystem.Contains("forward-to-me") Then NewSystem.Remove("forward-to-me")
+            End If
+            If Warner.IgnoreNodename Then
+                If NewSystem.Contains("expected-caller-nodename") Then NewSystem.Remove("expected-caller-nodename")
+            End If
+            Warner.Dispose()
+
+            'Convert in-line key to file.
             'If an in-line key was defined, the hashtable maker would have
             'extracted the whole shebang into this item.
             If NewSystem.ContainsKey("private-key-text") Then
-                'so if that is indeed the case, confirm making a file is OK
-                'with the user.
-                If MsgBox("This invite file has a private key that will be copied to this location:" & vbCrLf & vbCrLf &
-                          Chr(34) & KeyFileDest & Chr(34),
-                          MsgBoxStyle.YesNo,
-                          "OK to copy private key?"
-                          ) = MsgBoxResult.Yes Then
-                    Try
-                        System.IO.File.WriteAllText(KeyFileDest,
-                        NewSystem("private-key-text")
-                        )
-                        NewSystem.Add("private-key-file", KeyFileDest)
-                    Catch
-                        SquirrelComms.Item(21).SystemError("")
-                        Exit Sub
-                    End Try
-                Else
+                Try
+                    System.IO.File.WriteAllText(KeyFileDest,
+                    NewSystem("private-key-text")
+                    )
+                    NewSystem.Add("private-key-file", KeyFileDest)
+                Catch
+                    SquirrelComms.Item(21).SystemError("")
                     Exit Sub
-                End If
+                End Try
             Else
                 'But, if there is no in-line key, then 'private-key' needs to
                 'be a defined option, and point to a file that exists.
                 If Not NewSystem.ContainsKey("private-key-file") Then
-                    Exit Sub
-                Else
-                    If Not Validation_DoesFileExist(Slashes(NewSystem("private-key-file"))) Then
                         Exit Sub
+                    Else
+                        If Not Validation_DoesFileExist(Slashes(NewSystem("private-key-file"))) Then
+                            Exit Sub
+                        End If
                     End If
                 End If
-            End If
 
-            lbxBuilders.Enabled = False
-            btnInviteFile.Enabled = False
+                lbxBuilders.Enabled = False
+                btnInviteFile.Enabled = False
 
             conf.AddKnownSystems = SystemsToKnowPile
+
+            'Validation
+            Dim ValidationResult As String = Builder.CheckIfValid(NewSystem)
+            If ValidationResult <> "" Then
+                MsgBox(ValidationResult, MsgBoxStyle.Critical, "Can't create New system because...")
+                Exit Sub
+            End If
 
             'All looks good, tell builder to commit it to files.
             'If builder is successful, we'll refresh the UI with the newly
             'updated config.
             If Builder.EtchInFiles(NewSystem, conf) Then
-                NeedRefresh = True
-                Me.Close()
-            End If
+                    NeedRefresh = True
+                    Me.Close()
+                End If
 
-        End If
+            End If
     End Sub
 
 End Class
