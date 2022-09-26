@@ -48,7 +48,7 @@ If a valid Cygwin environment with all the UUCP goodies is in a folder named "cy
 
 # Usage
 
-Please refer to the document "Squirrel UUCP Caller - User Manual.pdf" (coming soon)
+Please refer to the document [https://github.com/lawrencecandilas/squirrel-uucp/blob/main/Documentation/Squirrel%20UUCP%20Caller%20User%20Manual.pdf](Squirrel UUCP Caller User Manual.pdf) (coming soon)
 
 # Why?
 
